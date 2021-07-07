@@ -3,56 +3,26 @@ import numpy as np
 from skimage.transform import resize
 
 
-def resize_image(image, old_spacing, new_spacing, order=3):
-    new_shape = (int(np.round(old_spacing[0]/new_spacing[0]*float(image.shape[0]))),
-                 int(np.round(old_spacing[1]/new_spacing[1]*float(image.shape[1]))),
-                 int(np.round(old_spacing[2]/new_spacing[2]*float(image.shape[2]))))
-    return resize(image, new_shape, order=order, mode='edge', cval=0, anti_aliasing=False)
+# def resize_image(image, old_spacing, new_spacing, order=3):
+#     new_shape = (int(np.round(old_spacing[0]/new_spacing[0]*float(image.shape[0]))),
+#                  int(np.round(old_spacing[1]/new_spacing[1]*float(image.shape[1]))),
+#                  int(np.round(old_spacing[2]/new_spacing[2]*float(image.shape[2]))))
+#     return resize(image, new_shape, order=order, mode='edge', cval=0, anti_aliasing=False)
 
 
-def preprocess_image(itk_image, is_seg=False, spacing_target=(1, 0.5, 0.5)):
-    spacing = np.array(itk_image.GetSpacing())[[2, 1, 0]]
-    image = sitk.GetArrayFromImage(itk_image).astype(float)
+def load_dict(mri_file):
 
-    assert len(image.shape) == 3, "The image has unsupported number of dimensions. Only 3D images are allowed"
-
-    if not is_seg:
-        if np.any([[i != j] for i, j in zip(spacing, spacing_target)]):
-            image = resize_image(image, spacing, spacing_target).astype(np.float32)
-
-        image -= image.mean()
-        image /= image.std()
-    else:
-        new_shape = (int(np.round(spacing[0] / spacing_target[0] * float(image.shape[0]))),
-                     int(np.round(spacing[1] / spacing_target[1] * float(image.shape[1]))),
-                     int(np.round(spacing[2] / spacing_target[2] * float(image.shape[2]))))
-        image = resize_segmentation(image, new_shape, 1)
-    return image
-
-
-def load_and_preprocess(mri_file):
-    images = {}
-    # t1
-    images["T1"] = sitk.ReadImage(mri_file)
+    img = sitk.ReadImage(mri_file)
 
     properties_dict = {
-        "spacing": images["T1"].GetSpacing(),
-        "direction": images["T1"].GetDirection(),
-        "size": images["T1"].GetSize(),
-        "origin": images["T1"].GetOrigin()
+        "spacing": img.GetSpacing(),
+        "direction": img.GetDirection(),
+        "size": img.GetSize(),
+        "origin": img.GetOrigin(),
+        "size_before_cropping": sitk.GetArrayFromImage(img).astype(float).shape
     }
 
-    for k in images.keys():
-        images[k] = preprocess_image(images[k], is_seg=False, spacing_target=(1.5, 1.5, 1.5))
-
-    properties_dict['size_before_cropping'] = images["T1"].shape
-
-    imgs = []
-    for seq in ['T1']:
-        imgs.append(images[seq][None])
-    all_data = np.vstack(imgs)
-    print("image shape after preprocessing: ", str(all_data[0].shape))
-    return all_data, properties_dict
+    return properties_dict
 
 
 def save_segmentation_nifti(segmentation, dct, out_fname, order=1):

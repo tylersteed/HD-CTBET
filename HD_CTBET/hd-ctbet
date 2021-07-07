@@ -1,16 +1,10 @@
 import os
-from HD_BET.run import run_hd_bet
-from HD_BET.utils import maybe_mkdir_p, subfiles
-import HD_BET
+from HD_CTBET.run import run_hd_ctbet
+from HD_CTBET.utils import maybe_mkdir_p, subfiles
+import HD_CTBET
 
 
 if __name__ == "__main__":
-    print("\n########################")
-    print("If you are using hd-bet, please cite the following paper:")
-    print("Isensee F, Schell M, Tursunova I, Brugnara G, Bonekamp D, Neuberger U, Wick A, Schlemmer HP, Heiland S, Wick W,"
-           "Bendszus M, Maier-Hein KH, Kickingereder P. Automated brain extraction of multi-sequence MRI using artificial"
-           "neural networks. arXiv preprint arXiv:1901.11341, 2019.")
-    print("########################\n")
 
     import argparse
     parser = argparse.ArgumentParser()
@@ -61,8 +55,8 @@ if __name__ == "__main__":
     save_mask = args.save_mask
     overwrite_existing = args.overwrite_existing
 
-    params_file = os.path.join(HD_BET.__path__[0], "model_final.py")
-    config_file = os.path.join(HD_BET.__path__[0], "config.py")
+    params_file = os.path.join(HD_CTBET.__path__[0], "model_final.py")
+    config_file = os.path.join(HD_CTBET.__path__[0], "config.py")
 
     assert os.path.abspath(input_file_or_dir) != os.path.abspath(output_file_or_dir), "output must be different from input"
 
@@ -116,4 +110,4 @@ if __name__ == "__main__":
     else:
         raise ValueError("Unknown value for pp: %s. Expected: 0 or 1" % str(pp))
 
-    run_hd_bet(input_files, output_files, mode, config_file, device, pp, tta, save_mask, overwrite_existing)
+    run_hd_ctbet(input_files, output_files, mode, config_file, device, pp, tta, save_mask, overwrite_existing)
