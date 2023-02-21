@@ -33,7 +33,8 @@ def maybe_download_parameters(fold=0, force_overwrite=False):
     if force_overwrite and os.path.isfile(out_filename+'.pkl'):
         os.remove(out_filename+'.pkl')
 
-    base = '/homes/claes/projects/nnUNet/nnUNet_trained_models/nnUNet/3d_fullres/Task203_CTBET/nnUNetTrainerV2__nnUNetPlansv2.1'
+    ##base = '/homes/claes/projects/nnUNet/nnUNet_trained_models/nnUNet/3d_fullres/Task203_CTBET/nnUNetTrainerV2__nnUNetPlansv2.1'
+    ##THIS WAS FOR YOUR HOME DIR, Need a link to model params included with code to use for CT seg, this should reference that link
     if not os.path.isfile(out_filename):
         shutil.copy(f'{base}/fold_{fold}/model_best.model', out_filename)
     if not os.path.isfile(out_filename+'.pkl'):
